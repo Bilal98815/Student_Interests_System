@@ -1,0 +1,127 @@
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f0f0f0;
+  margin: 0;
+  padding: 0;
+}
+
+.header {
+  background-color: #03045e;
+  padding: 20px;
+  text-align: left;
+  color: #ffffff;
+}
+
+.container {
+  text-align: left;
+  margin-top: 50px;
+  margin-left: 20px;
+}
+
+h1 {
+  color: #fff;
+}
+
+h2{
+  color: #ccc;
+  margin-left: 20px;
+}
+
+.form-group {
+  display: flex;
+  justify-content: left;
+  margin-top: 20px;
+}
+
+.label {
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+.input-field,
+.select-field,
+.date-picker {
+  padding: 8px;
+  margin: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-right: 50px;
+  font-size: 14px;
+}
+
+.select-field select {
+  box-sizing: border-box;
+  height: 34px;
+}
+
+.date-picker {
+  width: 180px;
+}
+
+.error-message {
+  color: red;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.button-container {
+  display: flex;
+  justify-content: left;
+  margin-top: 40px;
+  margin-bottom: 40px;
+  margin-left: 20px;
+}
+
+.button {
+  padding: 10px 20px;
+  font-size: 16px;
+  margin-right: 10px;
+  background-color: #4caf50;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.button-cancel {
+  background-color: #f44336;
+}
+
+.navbarDiv{
+  justify-content: left;
+  align-content: start;
+}
+
+.navbar {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #f2f2f2;
+}
+.navbar h2 {
+  color: #f1356d;
+  margin: 0;
+}
+.navbar .links {
+  display: flex;
+}
+.navbar a {
+  margin-left: 16px;
+  text-decoration: none;
+  padding: 6px;
+  color: #0d1b2a;
+}
+.navbar a:hover {
+  color: #f1356d;
+}
+
+.loading-text{
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  font-size: 20px;
+  transform: translate(-50%, -50%);
+  color: #540b0e;
+}
+
