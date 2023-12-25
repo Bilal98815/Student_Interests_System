@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
-import db from "../firebase";
+import { db } from "../firebase";
 import studentImage from "../assets/graduated.png";
 import "../styles/viewStudentStyles.css";
 import TitleBar from "../components/TitleBar";
@@ -30,10 +30,16 @@ function ViewStudent() {
     fetchStudent();
   }, [id]);
 
-  const formatDate = (timestamp) => {
-    const date = timestamp.toDate();
-    return date.toLocaleDateString();
-  };
+  function formatDate(inputDate) {
+    const date = new Date(inputDate);
+    const formattedDate = `${(date.getMonth() + 1)
+      .toString()
+      .padStart(2, "0")}/${date
+      .getDate()
+      .toString()
+      .padStart(2, "0")}/${date.getFullYear()}`;
+    return formattedDate;
+  }
 
   if (!student) {
     return <p className="loading-text">Loading...</p>;

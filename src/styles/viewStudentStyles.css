@@ -30,12 +30,15 @@
   
   .detail-heading {
     font-weight: bolder;
+    font-size: 20px;
     margin-bottom: 5px;
   }
   
   .detail-value {
     display: inline-flex;
     padding-top: 5px;
+    font-weight: 300;
+    font-size: 18px;
     margin: 0 8px 8px 0;
   }
   
@@ -95,12 +98,12 @@
   .image-container {
     display: flex;
     padding: 10px;
-    align-items: center; /* Center items vertically */
+    align-items: center;
   }
   
   .image-container img {
-    max-width: 100px; /* Adjust the maximum width of the image */
-    margin-right: 10px; /* Add spacing between the image and text */
+    max-width: 100px;
+    margin-right: 10px;
   }
 
   .details-container{

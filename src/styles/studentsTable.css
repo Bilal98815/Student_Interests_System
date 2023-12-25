@@ -107,3 +107,13 @@
   transform: translate(-50%, -50%);
   color: #540b0e;
 }
+
+.top-items-container{
+  justify-content: space-between;
+  display: flex;
+}
+
+.sorting-button{
+  margin-left: 50px;
+  padding: 8px;
+}

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import {
   doc,
@@ -9,7 +8,7 @@ import {
   collection,
   getDocs,
 } from "firebase/firestore";
-import db from "../firebase";
+import { db } from "../firebase";
 import "../styles/styles.css";
 import TitleBar from "../components/TitleBar";
 
@@ -45,11 +44,13 @@ const EditStudent = () => {
     "Other",
   ];
 
-  const formatDate = (timestamp) => {
-    const date = timestamp.toDate();
-    return date.toLocaleDateString();
-  };
-
+  function formatDate(inputDate) {
+    const date = new Date(inputDate);
+    const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1)
+      .toString()
+      .padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`;
+    return formattedDate;
+  }
   useEffect(() => {
     const getInterests = async () => {
       await getDocs(collection(db, "interests")).then((querySnapshot) => {
@@ -76,10 +77,10 @@ const EditStudent = () => {
           setSubject(studentDoc.data().subject);
           setGender(studentDoc.data().gender);
           setEmail(studentDoc.data().email);
-          setDob(new Date(studentDoc.data().dateOfBirth.toMillis()));
-          setStartDate(new Date(studentDoc.data().startDate.toMillis()));
-          setEndDate(new Date(studentDoc.data().endDate.toMillis()));
           setInterest(studentDoc.data().interest);
+          setDob(formatDate(studentDoc.data().dateOfBirth));
+          setStartDate(formatDate(studentDoc.data().startDate));
+          setEndDate(formatDate(studentDoc.data().endDate));
 
           console.log("Student found!!");
           setLoading(false);
@@ -122,6 +123,8 @@ const EditStudent = () => {
   if (loading) {
     return <p className="loading-text">Loading...</p>;
   }
+
+  console.log("Date of birth: ", dateOfBirth);
 
   return (
     <div>
@@ -190,12 +193,12 @@ const EditStudent = () => {
             <label className="label" htmlFor="dob">
               Date of Birth:
             </label>
-            <DatePicker
+            <input
+              type="date"
               id="dob"
-              selected={dateOfBirth}
-              onChange={(date) => setDob(date)}
-              dateFormat="dd/MM/yyyy"
-              placeholderText="DD/MM/YYYY"
+              value={dateOfBirth}
+              onChange={(date) => setDob(date.target.value)}
+              required
             />
           </div>
           <div className="select-field">
@@ -287,24 +290,24 @@ const EditStudent = () => {
             <label className="label" htmlFor="startDate">
               Start Date:
             </label>
-            <DatePicker
+            <input
+              type="date"
               id="startDate"
-              selected={startDate}
-              onChange={(date) => setStartDate(date)}
-              dateFormat="dd/MM/yyyy"
-              placeholderText="DD/MM/YYYY"
+              value={startDate}
+              onChange={(date) => setStartDate(date.target.value)}
+              required
             />
           </div>
           <div className="date-picker">
             <label className="label" htmlFor="endDate">
               End Date:
             </label>
-            <DatePicker
+            <input
+              type="date"
               id="endDate"
-              selected={endDate}
-              onChange={(date) => setEndDate(date)}
-              dateFormat="dd/MM/yyyy"
-              placeholderText="DD/MM/YYYY"
+              value={endDate}
+              onChange={(date) => setEndDate(date.target.value)}
+              required
             />
           </div>
         </div>
