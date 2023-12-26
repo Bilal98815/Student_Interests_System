@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { collection, onSnapshot, deleteDoc, doc } from "firebase/firestore";
+import {
+  collection,
+  onSnapshot,
+  deleteDoc,
+  doc,
+  addDoc,
+} from "firebase/firestore";
 import { db } from "../firebase";
 import "../styles/studentsTable.css";
 import { Link } from "react-router-dom";
@@ -79,6 +85,11 @@ const StudentsPage = () => {
       setLoading(true);
       await deleteDoc(doc(db, "students", id));
       console.log("Student deleted successfully!");
+      const activity = {
+        time: new Date(),
+        count: 1,
+      };
+      await addDoc(collection(db, "logs"), activity);
       setLoading(false);
     } catch (error) {
       setLoading(false);

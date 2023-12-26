@@ -9,7 +9,11 @@ body {
   background-color: #03045e;
   padding: 20px;
   text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   color: #ffffff;
+  height: 140px;
 }
 
 .container {
@@ -52,6 +56,12 @@ h2{
 .select-field select {
   box-sizing: border-box;
   height: 34px;
+}
+
+.logout-image{
+  width: 60px;
+  height: 60px;
+  margin-right: 60px;
 }
 
 .date-picker {

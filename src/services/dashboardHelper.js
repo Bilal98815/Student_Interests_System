@@ -1,12 +1,23 @@
 import { useState, useEffect } from "react";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  query,
+  where,
+  addDoc,
+  Timestamp,
+} from "firebase/firestore";
 import { db } from "../firebase";
+import Cookies from "js-cookie";
 import {
   subDays,
   startOfDay,
   endOfDay,
   isWithinInterval,
   differenceInDays,
+  getHours,
+  format,
+  isAfter,
   parse,
 } from "date-fns";
 import Interest from "../models/InterestModel";
@@ -30,6 +41,10 @@ const DashBoardHelper = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [studyStatusCount, setStudyStatusCount] = useState([]);
   const [students, setStudents] = useState([]);
+  const [last30DaysActiveHours, set30DaysActiveTime] = useState([]);
+  const [last30DaysLeastHours, set30DaysLeastTime] = useState([]);
+  const [last24HoursCount, setLast24HoursCount] = useState([]);
+  const [last30DaysCount, setLast30DaysCount] = useState([]);
 
   const isFutureDate = (date) => {
     return date > currentDate;
@@ -287,7 +302,7 @@ const DashBoardHelper = () => {
 
         setCurrentDate(currentDateTemp);
 
-        const startDate = startOfDay(subDays(currentDateTemp, 30));
+        let startDate = startOfDay(subDays(currentDateTemp, 30));
         const dailyCountsArray = Array(30).fill(0);
 
         const querySnapshot = await getDocs(
@@ -303,13 +318,126 @@ const DashBoardHelper = () => {
           const timestamp = doc.data().time.toDate();
           const daysAgo = differenceInDays(currentDateTemp, timestamp);
           if (daysAgo >= 0 && daysAgo < 30) {
-            dailyCountsArray[daysAgo]++;
+            dailyCountsArray[29 - daysAgo]++;
           }
         });
+
+        console.log(dailyCountsArray.reverse());
 
         setDailyCounts(dailyCountsArray.reverse());
 
         setStudents(processedStudents);
+
+        const startTime = subDays(currentDateTemp, 30);
+
+        const snapShots = await getDocs(collection(db, "users"));
+
+        const users = snapShots.docs.map((snapshot) => ({
+          id: snapshot.id,
+          ...snapshot.data(),
+        }));
+
+        const hoursMap = new Map();
+
+        users.forEach((user) => {
+          const timeStampArray = user.time;
+          timeStampArray.forEach((timeTemp) => {
+            const timeStampDate = timeTemp.toDate();
+            if (isAfter(timeStampDate, startTime)) {
+              const hour = getHours(timeStampDate);
+              const formattedHour = format(timeStampDate, "h a");
+
+              if (hoursMap.has(formattedHour)) {
+                hoursMap.set(formattedHour, hoursMap.get(formattedHour) + 1);
+              } else {
+                hoursMap.set(formattedHour, 1);
+              }
+            }
+          });
+        });
+
+        const hoursArray = Array.from(hoursMap, ([hour, count]) => ({
+          hour,
+          count,
+        }));
+        hoursArray.sort((a, b) => b.count - a.count);
+        const top5Hours = hoursArray.slice(0, 5);
+
+        hoursArray.sort((a, b) => a.count - b.count);
+        const least5Hours = hoursArray.slice(0, 5);
+
+        set30DaysActiveTime(top5Hours);
+        set30DaysLeastTime(least5Hours);
+
+        startDate = new Date(currentDateTemp);
+        startDate.setHours(startDate.getHours() - 24);
+
+        const logsCollection = collection(db, "logs");
+        const q = query(
+          logsCollection,
+          where("time", ">=", Timestamp.fromDate(startDate)),
+          where("time", "<=", Timestamp.fromDate(currentDateTemp))
+        );
+
+        const logsSnapshot = await getDocs(q);
+
+        const countPerHour = new Map();
+
+        for (let hour = 0; hour <= 23; hour++) {
+          const formattedHourTemp = `${
+            hour === 0 ? 12 : hour > 12 ? hour - 12 : hour
+          }${hour < 12 ? "AM" : "PM"}`;
+          countPerHour.set(formattedHourTemp, 0);
+        }
+
+        logsSnapshot.forEach((doc) => {
+          const timestamp = doc.data().time.toDate();
+          const hour = timestamp.getHours();
+
+          const hour12 = hour % 12 || 12;
+          const amPm = hour < 12 ? "AM" : "PM";
+
+          const count = doc.data().count;
+
+          const formattedHour = hour12 + amPm;
+
+          countPerHour.set(
+            formattedHour,
+            (countPerHour.get(formattedHour) || 0) + count
+          );
+        });
+
+        const logHoursArray = Array.from(countPerHour, ([hour, count]) => ({
+          hour,
+          count,
+        }));
+
+        console.log(logHoursArray);
+
+        setLast24HoursCount(logHoursArray);
+
+        startDate = startOfDay(subDays(currentDateTemp, 30));
+
+        const countsPerHourArr = Array(30).fill(0);
+
+        const logsQuerySnapShots = await getDocs(
+          query(
+            collection(db, "logs"),
+            where("time", ">=", startDate),
+            where("time", "<=", currentDateTemp)
+          )
+        );
+
+        logsQuerySnapShots.forEach((doc) => {
+          const timeStamp = doc.data().time.toDate();
+          const daysAgo = differenceInDays(currentDateTemp, timeStamp);
+
+          if (daysAgo >= 0 && daysAgo < 30) {
+            countsPerHourArr[daysAgo]++;
+          }
+        });
+
+        setLast30DaysCount(countsPerHourArr.reverse());
 
         const statusCount = [
           studyingArray.length > 0 ? studyingArray[0].count : 0,
@@ -319,6 +447,15 @@ const DashBoardHelper = () => {
         ];
 
         setStudyStatusCount(statusCount);
+        let count = Cookies.get("activityCount");
+        count++;
+        Cookies.set("activityCount", count);
+
+        const activity = {
+          time: new Date(),
+          count: 1,
+        };
+        addDoc(collection(db, "logs"), activity);
 
         setLoading(false);
       } catch (error) {
@@ -344,6 +481,10 @@ const DashBoardHelper = () => {
     currentDate,
     studyStatusCount,
     students,
+    last30DaysActiveHours,
+    last30DaysLeastHours,
+    last24HoursCount,
+    last30DaysCount,
   };
 };
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, addDoc, collection } from "firebase/firestore";
 import { db } from "../firebase";
 import studentImage from "../assets/graduated.png";
 import "../styles/viewStudentStyles.css";
@@ -16,6 +16,11 @@ function ViewStudent() {
     const fetchStudent = async () => {
       try {
         const studentDoc = await getDoc(doc(db, "students", id));
+        const activity = {
+          time: new Date(),
+          count: 1,
+        };
+        addDoc(collection(db, "logs"), activity);
 
         if (studentDoc.exists()) {
           setStudent({ id: studentDoc.id, ...studentDoc.data() });

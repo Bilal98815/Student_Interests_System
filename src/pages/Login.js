@@ -3,7 +3,18 @@ import "../styles/util.css";
 import image from "../assets/img-01.png";
 import { useState, useEffect } from "react";
 import { db } from "../firebase";
-import { collection, getDocs } from "firebase/firestore";
+import Cookies from "js-cookie";
+import {
+  collection,
+  getDocs,
+  query,
+  updateDoc,
+  doc,
+  addDoc,
+  where,
+  updateFieldValue,
+  arrayUnion,
+} from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import ButtonLoader from "../components/ButtonLoader";
 import { auth } from "../firebase";
@@ -31,25 +42,63 @@ const Login = () => {
 
       var isAdminFound = false;
 
-      admins.forEach((admin) => {
+      admins.forEach(async (admin) => {
         if (admin.data().email == email && admin.data().password == password) {
+          isAdminFound = true;
           console.log("Login Successful!");
+          Cookies.set("role", "admin", { expires: 1 });
           setEmail("");
           setPassword("");
-          isAdminFound = true;
+          const activity = {
+            time: new Date(),
+            count: 1,
+          };
+          await addDoc(collection(db, "logs"), activity);
+          Cookies.set("userId", "1", { expires: 1 });
+          Cookies.set("activityCount", 1, { expires: 1 });
           setLoading(false);
           navigate("/addStudent");
         }
       });
       if (!isAdminFound) {
-        setLoading(false);
+        setLoading(true);
         await signInWithEmailAndPassword(auth, email, password)
-          .then((userCredential) => {
-            const user = "user";
-            setLoading(false);
-            setEmail("");
-            setPassword("");
-            navigate(`/students/${user}`);
+          .then(async (userCredential) => {
+            console.log(userCredential.user.uid);
+
+            const q = query(
+              collection(db, "users"),
+              where("uid", "==", userCredential.user.uid)
+            );
+
+            const snapShots = await getDocs(q);
+
+            if (snapShots.size != 0) {
+              const document = snapShots.docs[0];
+              console.log("doc id: ", document.id);
+              await updateDoc(doc(db, "users", document.id), {
+                ["time"]: arrayUnion(new Date()),
+              });
+              const activity = {
+                time: new Date(),
+                count: 1,
+              };
+              await addDoc(collection(db, "logs"), activity);
+              Cookies.set("role", "user", { expires: 1 });
+              Cookies.set("userId", document.id, { expires: 1 });
+              Cookies.set("activityCount", 1, { expires: 1 });
+              const user = "user";
+              setEmail("");
+              setPassword("");
+              setLoading(false);
+              navigate(`/students/${user}`);
+            } else {
+              setLoading(false);
+              setTimeout(() => {
+                setError("");
+              }, 2000);
+              setError("Something went wrong!");
+            }
           })
           .catch((e) => {
             setLoading(false);
@@ -131,7 +180,7 @@ const Login = () => {
               )}
 
               <div className="text-center p-t-136">
-                <a className="txt2" onClick={handleNaviagte}>
+                <a className="txt2" href="/signup" onClick={handleNaviagte}>
                   Create your Account
                   <i
                     className="fa fa-long-arrow-right m-l-5"

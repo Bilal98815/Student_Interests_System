@@ -3,7 +3,8 @@ import "../styles/util.css";
 import image from "../assets/img-01.png";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { auth } from "../firebase";
+import { auth, db } from "../firebase";
+import { addDoc, collection } from "firebase/firestore";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import ButtonLoader from "../components/ButtonLoader";
 
@@ -24,10 +25,17 @@ const Signup = () => {
 
     setLoading(true);
     await createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        const user = userCredential.user;
-        console.log("Signed up!!");
-        console.log(user.uid);
+      .then(async (userCredential) => {
+        const activity = {
+          time: new Date(),
+          count: 1,
+        };
+        await addDoc(collection(db, "logs"), activity);
+        const docId = await addDoc(collection(db, "users"), {
+          email: email,
+          uid: userCredential.user.uid,
+          time: [],
+        });
         setLoading(false);
         navigate("/");
       })
@@ -103,7 +111,7 @@ const Signup = () => {
               )}
 
               <div className="text-center p-t-136">
-                <a className="txt2" onClick={handleNaviagte}>
+                <a className="txt2" href="/" onClick={handleNaviagte}>
                   Already have an account? Login
                   <i
                     className="fa fa-long-arrow-right m-l-5"

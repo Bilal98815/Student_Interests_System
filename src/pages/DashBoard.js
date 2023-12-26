@@ -7,6 +7,7 @@ import "../styles/dashboardStyles.css";
 import Loader from "../components/Loader";
 import InterestTile from "../components/InterestTile";
 import BarChart from "../components/BarChart";
+import Cookies from "js-cookie";
 
 const Dashboard = () => {
   const {
@@ -23,6 +24,10 @@ const Dashboard = () => {
     currentDate,
     studyStatusCount,
     students,
+    last30DaysActiveHours,
+    last30DaysLeastHours,
+    last24HoursCount,
+    last30DaysCount,
   } = DashBoardHelper();
 
   const getColor = (index) => {
@@ -102,6 +107,33 @@ const Dashboard = () => {
     ],
   };
 
+  const lineChartDataForLast24Hours = {
+    labels: last24HoursCount.map((hour) => hour.hour),
+    datasets: [
+      {
+        label: "Submission Chart",
+        data: last24HoursCount.map((hour) => hour.count),
+        fill: false,
+        borderColor: "#36A2EB",
+      },
+    ],
+  };
+
+  const lineChartDataForLast30Days = {
+    labels: Array.from({ length: 30 }, (_, index) => {
+      const date = subDays(currentDate, index);
+      return date.toLocaleDateString();
+    }).reverse(),
+    datasets: [
+      {
+        label: "Submission Chart",
+        data: last30DaysCount,
+        fill: false,
+        borderColor: "#36A2EB",
+      },
+    ],
+  };
+
   const studentsStatus = [
     "Studying",
     "Recently Enrolled",
@@ -120,71 +152,113 @@ const Dashboard = () => {
   return (
     <div>
       <TitleBar />
-      <div className="mega-interest-container">
-        <div className="interest-container">
-          <p>Top 5 Interests</p>
-          <div>
-            {topInterests.map((interest) => (
-              <InterestTile interest={interest.interest} />
-            ))}
+      <div className="background-container">
+        <div className="mega-interest-container">
+          <div className="interest-container">
+            <p>Top 5 Interests</p>
+            <div>
+              {topInterests.map((interest) => (
+                <InterestTile interest={interest.interest} />
+              ))}
+            </div>
+            <p>Bottom 5 Interests</p>
+            <div>
+              {bottomInterests.map((interest) => (
+                <InterestTile interest={interest} />
+              ))}
+            </div>
           </div>
-          <p>Bottom 5 Interests</p>
-          <div>
-            {bottomInterests.map((interest) => (
-              <InterestTile interest={interest} />
-            ))}
+          <div className="distinct-interests">
+            <h1>Distinct Interests</h1>
+            <p>{interestNumber}</p>
           </div>
         </div>
-        <div className="distinct-interests">
-          <h1>Distinct Interests</h1>
-          <p>{interestNumber}</p>
+        <div className="content">
+          <div className="pie-chart">
+            <PieChart data={pieChartCity} />
+            <h3>Provincial Distribution</h3>
+          </div>
+          <div className="pie-chart">
+            <PieChart data={pieChartDegree} />
+            <h3>Degree Distribution</h3>
+          </div>
+          <div className="pie-chart">
+            <PieChart data={pieChartDepartment} />
+            <h3>Department Distribution</h3>
+          </div>
         </div>
-      </div>
-      <div className="content">
-        <div className="pie-chart">
-          <PieChart data={pieChartCity} />
-          <h3>Provincial Distribution</h3>
+        <div className="content">
+          <div className="pie-chart">
+            <PieChart data={pieChartGender} />
+            <h3>Gender Distribution</h3>
+          </div>
+          <div className="pie-chart">
+            <BarChart data={barChartAge} />
+            <h3>Age Distribution</h3>
+          </div>
         </div>
-        <div className="pie-chart">
-          <PieChart data={pieChartDegree} />
-          <h3>Degree Distribution</h3>
-        </div>
-        <div className="pie-chart">
-          <PieChart data={pieChartDepartment} />
-          <h3>Department Distribution</h3>
-        </div>
-      </div>
-      <div className="content">
-        <div className="pie-chart">
-          <PieChart data={pieChartGender} />
-          <h3>Gender Distribution</h3>
-        </div>
-        <div className="pie-chart">
-          <BarChart data={barChartAge} />
-          <h3>Age Distribution</h3>
-        </div>
-      </div>
-      <div className="content">
-        <div className="pie-chart">
-          <LineChart data={lineChartData} />
-          <h3>Submission Chart</h3>
-        </div>
-        <table className="table-decoration">
-          <thead>
-            <tr>
-              <th>Students Status</th>
-              <th>Count</th>
-            </tr>
-          </thead>
-          <tbody>
-            {studentsStatus.map((status, index) => (
-              <tr key={index}>
-                <td>{status}</td>
-                <td>{studyStatusCount[index]}</td>
+        <div className="content">
+          <div className="pie-chart">
+            <LineChart data={lineChartData} />
+            <h3>Submission Chart</h3>
+          </div>
+          <table className="table-decoration">
+            <thead>
+              <tr>
+                <th>Students Status</th>
+                <th>Count</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {studentsStatus.map((status, index) => (
+                <tr key={index}>
+                  <td>{status}</td>
+                  <td>{studyStatusCount[index]}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="content">
+          <table className="table-decoration">
+            <thead>
+              <tr>
+                <th>Most Active Hours in Last 30 Days</th>
+              </tr>
+            </thead>
+            <tbody>
+              {last30DaysActiveHours.map((time, index) => (
+                <tr key={index}>
+                  <td>-{time.hour}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <table className="table-decoration">
+            <thead>
+              <tr>
+                <th>Least Active Hours in Last 30 Days</th>
+              </tr>
+            </thead>
+            <tbody>
+              {last30DaysLeastHours.map((time, index) => (
+                <tr key={index}>
+                  <td>-{time.hour}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="content">
+          <div className="pie-chart">
+            <LineChart data={lineChartDataForLast24Hours} />
+            <h3>Last 24 Hours Activity Chart</h3>
+          </div>
+          <div className="pie-chart">
+            <LineChart data={lineChartDataForLast30Days} />
+            <h3>Last 30 Days Activity Chart</h3>
+          </div>
+        </div>
       </div>
     </div>
   );

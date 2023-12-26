@@ -7,6 +7,7 @@ import {
   updateDoc,
   collection,
   getDocs,
+  addDoc,
 } from "firebase/firestore";
 import { db } from "../firebase";
 import "../styles/styles.css";
@@ -113,6 +114,11 @@ const EditStudent = () => {
         interest,
         city,
       });
+      const activity = {
+        time: new Date(),
+        count: 1,
+      };
+      addDoc(collection(db, "logs"), activity);
       console.log("Student updated successfully!");
       navigate(-1);
     } catch (error) {

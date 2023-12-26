@@ -81,6 +81,7 @@
   .interest-container p{
     font-size: 30px;
     font-weight: 700;
+    color: #2382f8;
   } 
   .mega-interest-container{
     justify-items: center;
@@ -100,5 +101,9 @@
     text-align: left;
     padding: 8px;
     box-shadow: 2px 6px 8px rgba(167, 148, 148, 0.5);
+  }
+
+  .background-container{
+    background-color: #fdfffe;
   }
   
