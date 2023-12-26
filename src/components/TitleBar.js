@@ -19,7 +19,7 @@ const TitleBar = () => {
       console.log("In user if");
       await auth.signOut();
     }
-    navigate("/");
+    navigate("/", { replace: true });
   };
 
   return (

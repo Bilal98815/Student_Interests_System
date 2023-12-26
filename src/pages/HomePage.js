@@ -4,7 +4,7 @@ import { db } from "../firebase";
 import { collection, addDoc, getDocs } from "firebase/firestore";
 import "react-datepicker/dist/react-datepicker.css";
 import "../styles/styles.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import TitleBar from "../components/TitleBar";
 
 const FrontPage = () => {
@@ -25,6 +25,8 @@ const FrontPage = () => {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [admin, setAdmin] = useState("admin");
+
+  const navigate = useNavigate();
 
   const cities = [
     "Select City",
@@ -108,6 +110,9 @@ const FrontPage = () => {
             setMessage("");
           }, 3000);
 
+          const user = "admin";
+          navigate(`/students/${user}`);
+
           console.log("Student Added:", docId);
         } else {
           setError("Please Fill All fields!");
@@ -162,6 +167,9 @@ const FrontPage = () => {
           setTimeout(() => {
             setMessage("");
           }, 3000);
+
+          const user = "admin";
+          navigate(`/students/${user}`);
 
           console.log("Student Added:", docId);
         } else {

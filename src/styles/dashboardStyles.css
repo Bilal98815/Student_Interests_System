@@ -57,6 +57,7 @@
     padding-left: 6px;
     padding-right: 6px;
     border-radius: 25px;
+    padding: 8px;
     display: inline-block;
     margin: 8px;
     background-color: #bf0603;
@@ -81,7 +82,7 @@
   .interest-container p{
     font-size: 30px;
     font-weight: 700;
-    color: #2382f8;
+    color: #00072d;
   } 
   .mega-interest-container{
     justify-items: center;

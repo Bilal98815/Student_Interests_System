@@ -57,7 +57,7 @@ const Login = () => {
           Cookies.set("userId", "1", { expires: 1 });
           Cookies.set("activityCount", 1, { expires: 1 });
           setLoading(false);
-          navigate("/addStudent");
+          navigate("/addStudent", { replace: true });
         }
       });
       if (!isAdminFound) {
@@ -91,7 +91,7 @@ const Login = () => {
               setEmail("");
               setPassword("");
               setLoading(false);
-              navigate(`/students/${user}`);
+              navigate(`/students/${user}`, { replace: true });
             } else {
               setLoading(false);
               setTimeout(() => {
