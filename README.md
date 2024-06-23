@@ -2,6 +2,16 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+# Project Overview
+
+In this project an admin can add students and choose the interests of students he/she added. After that admin can see all the students, view a specific studen, edit data of a student and delete a student. Then there is a dashboard which shows the data of students in graphs, like different age students numbers, unique interests, location of students, most activity in website in last 24 hours and last 30 days and many more. Plus a student can also login and view other students and dashboard but cant edit or delete students. 
+
+For backend, I used Firebase and for frontend ReactJS. To use this project replace with your own firebase in the project and replace firebase properties in firebase.js file.
+
+------>>> IF YOU LIKE IT PLEASE GIVE IT A STAR :) <<<-------
+
+Happy Coding :)
+
 ## Available Scripts
 
 In the project directory, you can run:
